@@ -1,0 +1,34 @@
+TEST PD151021
+
+In a language of your choice write a program that solves the following problem and creates an output as indicated.
+
++You have a building with M elevators and N Floors that hold up to Q people (each car).
++In order to be serviced, people take a number in the mezzanine and wait for their turn to be lifted to their floor.
++The speed of the elevator is 2 seconds per floor going up and 1 second per floor going down.
++Given N,M and Q and the name of the input file as arguments for your program, create a program to service the line of people waiting in the lobby in the least amount of time possible.
+
+Input: Text file with a comma separated string with the destination floor number for each person waiting in line. Files are located in the input-files folder.
+
+Output: A text file called output.txt with the elevator trip logs (you decide the best way to display that data) and the total time to service all the passengers. 
+
+What you will be graded on
+
+    Correct Output
+    Simplicity
+    Unit testing (output and input)
+    Design Principles / Clean design
+    Readability
+    Ability to follow these instructions
+
+Include / Don’t Include
+
+    Please include a README file that describes how to build and run the application and its tests.
+    Please additionally include your unit testing framework.
+    Your program may only use the standard libraries which accompany your chosen language’s runtime. No other libraries may be used.
+    If you use a build tool (e.g. Ant, nmake, maven, rake, etc.) to build your project, please include the build file as well.
+    If you think the test or instructions could be improved, we welcome your feedback
+ 
+DELIVERY
+
+Pack everything in a zip file and send it back to rcid@prescriptivedata.io
+
