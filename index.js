@@ -20,7 +20,8 @@ rl.on('line', function(line) {
 */
 
 // parses input txt file
-const input = require('./input-files/' + 'eztest1.txt');
+const filename = 'input2.txt';
+const input = require('./input-files/' + filename);
 const inputArr = input.split("\n");
 if (inputArr.length !== 4){
     console.error('Invalid input; must have an M, N, Q, and array of people; input contains ' + inputArr.length + ' parameters');
@@ -51,9 +52,10 @@ for (var i = 0; i < numElevators; i++){
 }
 
 // runs simulation
-i = 0; // i = time in 2 second intervals
-while (queue.length > 0 || passengersInTransit > 0){
-    log[i] = '';
+i = 0; // i = time in seconds
+let onceMore = 1;
+while (queue.length > 0 || passengersInTransit > 0 || onceMore > 1){
+    log[i] = 'T(' + i + '): ';
 
     // find available elevators on floor 0
     bottomFloorElevators = [];
@@ -66,12 +68,15 @@ while (queue.length > 0 || passengersInTransit > 0){
         }
     }
 
-    // passengers get into available elevators
+    //  elevators receive passengers; log is populated as passengers board
     let currentPool = queue.slice(0,  bottomFloorElevators.length * capacity).sort();
     for (j = 0; j < bottomFloorElevators.length; j++){
         let currentElevator = elevators[bottomFloorElevators[j]];
         currentElevator.passengers = currentPool.slice(j*capacity, j*capacity + capacity);
         currentElevator.targetFloor = currentElevator.passengers[currentElevator.passengers.length-1];
+        currentElevator.passengers.length > 0 ?
+        log[i] += currentElevator.passengers.length + ' passengers board elevator ' + currentElevator.id + '. ' :
+        log[i] += 'Elevator ' + currentElevator.id + ' returns to the bottom floor. ';
         for (var k = 0; k < capacity; k++) queue.shift();
     }
 
@@ -88,19 +93,21 @@ while (queue.length > 0 || passengersInTransit > 0){
             }
             if (departingPassengers){
                 departingPassengers === 1 ? 
-                log[i] += departingPassengers + ' passenger exited elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + ' ' :
-                log[i] += departingPassengers + ' passengers exited elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + ' ';
+                log[i] += departingPassengers + ' passenger exits elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' :
+                log[i] += departingPassengers + ' passengers exit elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ';
             }
         passengersInTransit += currentElevator.passengers.length;
         } else currentElevator.position--;
     }
+
+    if (queue.length === 0 && passengersInTransit === 0) onceMore--;
     
     console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
     i++;
 }
 
 // writes output file
-fs.writeFile('./output.txt', log.join('\n'), function(err) {
+fs.writeFile('./output.txt', filename + ' elevator logs\n' + log.join('\n'), function(err) {
         if(err) {
             return console.log(err);
         }
