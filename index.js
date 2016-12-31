@@ -52,8 +52,8 @@ for (var i = 0; i < numElevators; i++){
 
 // runs simulation
 i = 0; // i = time in 2 second intervals
-while (queue.length > 0 && passengersInTransit !== 0){
-    i++;
+while (queue.length > 0 || passengersInTransit > 0){
+    log[i] = '';
 
     // find available elevators on floor 0
     bottomFloorElevators = [];
@@ -68,21 +68,41 @@ while (queue.length > 0 && passengersInTransit !== 0){
 
     // passengers get into available elevators
     let currentPool = queue.slice(0,  bottomFloorElevators.length * capacity).sort();
-    for (j = 0; j < elevators.length; j++){
-        elevators[j].passengers = currentPool.slice(j*capacity, j*capacity + capacity);
-        elevators[j].targetFloor = elevators[j].passengers[elevators[j].passengers.length-1];
+    for (j = 0; j < bottomFloorElevators.length; j++){
+        let currentElevator = elevators[bottomFloorElevators[j]];
+        currentElevator.passengers = currentPool.slice(j*capacity, j*capacity + capacity);
+        currentElevator.targetFloor = currentElevator.passengers[currentElevator.passengers.length-1];
         for (var k = 0; k < capacity; k++) queue.shift();
     }
+
+    // elevators move up & down; log is populated as passengers leave
+    passengersInTransit = 0;
+    for (j = 0; j < elevators.length; j++){
+        currentElevator = elevators[j];
+        if (currentElevator.ascending){
+            currentElevator.position += 0.5;
+            let departingPassengers = 0;
+            while (currentElevator.position === currentElevator.passengers[0]){
+                departingPassengers++;
+                currentElevator.passengers.shift();
+            }
+            if (departingPassengers){
+                departingPassengers === 1 ? 
+                log[i] += departingPassengers + ' passenger exited elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + ' ' :
+                log[i] += departingPassengers + ' passengers exited elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + ' ';
+            }
+        passengersInTransit += currentElevator.passengers.length;
+        } else currentElevator.position--;
+    }
     
-    console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' i: ', i);
+    console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
+    i++;
 }
 
-/*
 // writes output file
-fs.writeFile('./output.txt', (currentIndex+1).toString(), function(err) {
+fs.writeFile('./output.txt', log.join('\n'), function(err) {
         if(err) {
             return console.log(err);
         }
         console.log('Result written to ./output.txt');
     });
-*/
