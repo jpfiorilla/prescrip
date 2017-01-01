@@ -5,20 +5,6 @@ require.extensions['.txt'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
 };
 
-// allows node to take input from the console
-/*
-const readline = require('readline');
-var rl = readline.createInterface(process.stdin, process.stdout);
-rl.setPrompt('guess> ');
-rl.prompt();
-rl.on('line', function(line) {
-    if (line === "right") rl.close();
-    rl.prompt();
-}).on('close',function(){
-    process.exit(0);
-});
-*/
-
 // adds max & min element functions to Array prototype
 Array.prototype.max = function() {
     return Math.max.apply(null, this);
@@ -27,8 +13,19 @@ Array.prototype.min = function() {
     return Math.min.apply(null, this);
 };
 
+// writes output file
+const write = function(filename){
+    fs.writeFile('./output.txt', filename + ' elevator logs\n' + log.join('\n'), function(err){
+            if(err) return console.log(err);
+            console.log('Result written to ./output.txt');
+        });
+}
+
+const filename = 'input2.txt';
+
 // parses input txt file
-const filename = 'eztest1.txt';
+const elevatorProblem = function(filename){
+// const filename = 'input2.txt';
 const input = require('./input-files/' + filename);
 const inputArr = input.split("\n");
 if (inputArr.length !== 4){
@@ -108,14 +105,21 @@ while (queue.length + passengersInTransit > 0){
         } else currentElevator.position--;
     }
 
-    console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
+    // console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
     i++;
 }
+fs.writeFile('./output.txt', filename + ' elevator logs\n' + log.join('\n'), function(err){
+            if(err) return console.log(err);
+            console.log('Result written to ./output.txt');
+        });
+}
 
-// writes output file
-fs.writeFile('./output.txt', filename + ' elevator logs\n' + log.join('\n'), function(err) {
-        if(err) {
-            return console.log(err);
-        }
-        console.log('Result written to ./output.txt');
-    });
+elevatorProblem(filename);
+
+// allows node to take input from the terminal
+const readline = require('readline');
+// const rl = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+//   prompt: 'Enter a file name> '
+// });
