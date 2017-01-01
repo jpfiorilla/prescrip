@@ -28,7 +28,7 @@ Array.prototype.min = function() {
 };
 
 // parses input txt file
-const filename = 'input2.txt';
+const filename = 'eztest1.txt';
 const input = require('./input-files/' + filename);
 const inputArr = input.split("\n");
 if (inputArr.length !== 4){
@@ -81,7 +81,7 @@ while (queue.length + passengersInTransit > 0){
     for (j = 0; j < bottomFloorElevators.length; j++){
         let currentElevator = elevators[bottomFloorElevators[j]];
         currentElevator.passengers = currentPool.slice(j*capacity, j*capacity + capacity);
-        currentElevator.targetFloor = currentElevator.passengers[currentElevator.passengers.length-1];
+        if (currentElevator.passengers.length) currentElevator.targetFloor = currentElevator.passengers.max();
         currentElevator.passengers.length > 0 ?
         log[i] += currentElevator.passengers.length + ' passengers board elevator ' + currentElevator.id + '. ' :
         log[i] += 'Elevator ' + currentElevator.id + ' returns to the bottom floor. ';
@@ -95,15 +95,14 @@ while (queue.length + passengersInTransit > 0){
         if (currentElevator.ascending){
             currentElevator.position += 0.5;
             let departingPassengers = 0;
-            while (currentElevator.position === currentElevator.passengers[0]){
+            while (currentElevator.position === currentElevator.passengers.min()){
                 departingPassengers++;
-                currentElevator.passengers.shift();
+                currentElevator.passengers.splice(currentElevator.passengers.indexOf(currentElevator.passengers.min()), 1);
             }
             if (departingPassengers){
-                let pass = 'Elevator contains passengers ' + currentElevator.passengers + '. ';
                 departingPassengers === 1 ? 
-                log[i] += departingPassengers + ' passenger exits elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' + pass :
-                log[i] += departingPassengers + ' passengers exit elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' + pass;
+                log[i] += departingPassengers + ' passenger exits elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' :
+                log[i] += departingPassengers + ' passengers exit elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ';
             }
         passengersInTransit += currentElevator.passengers.length;
         } else currentElevator.position--;
