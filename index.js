@@ -19,6 +19,14 @@ rl.on('line', function(line) {
 });
 */
 
+// adds max & min element functions to Array prototype
+Array.prototype.max = function() {
+    return Math.max.apply(null, this);
+};
+Array.prototype.min = function() {
+    return Math.min.apply(null, this);
+};
+
 // parses input txt file
 const filename = 'input2.txt';
 const input = require('./input-files/' + filename);
@@ -53,8 +61,8 @@ for (var i = 0; i < numElevators; i++){
 
 // runs simulation
 i = 0; // i = time in seconds
-let onceMore = 1;
-while (queue.length > 0 || passengersInTransit > 0 || onceMore > 1){
+let consolelog = '';
+while (queue.length + passengersInTransit > 0){
     log[i] = 'T(' + i + '): ';
 
     // find available elevators on floor 0
@@ -63,7 +71,7 @@ while (queue.length > 0 || passengersInTransit > 0 || onceMore > 1){
         if (elevators[j].position === 0) {
             bottomFloorElevators.push(j);
             elevators[j].ascending = true;
-        } else if (elevators[j].position === elevators[j].targetFloor){
+        } else if (elevators[j].position >= elevators[j].targetFloor){
             elevators[j].ascending = false;
         }
     }
@@ -92,16 +100,15 @@ while (queue.length > 0 || passengersInTransit > 0 || onceMore > 1){
                 currentElevator.passengers.shift();
             }
             if (departingPassengers){
+                let pass = 'Elevator contains passengers ' + currentElevator.passengers + '. ';
                 departingPassengers === 1 ? 
-                log[i] += departingPassengers + ' passenger exits elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' :
-                log[i] += departingPassengers + ' passengers exit elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ';
+                log[i] += departingPassengers + ' passenger exits elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' + pass :
+                log[i] += departingPassengers + ' passengers exit elevator ' + currentElevator.id + ' on floor ' + currentElevator.position + '. ' + pass;
             }
         passengersInTransit += currentElevator.passengers.length;
         } else currentElevator.position--;
     }
 
-    if (queue.length === 0 && passengersInTransit === 0) onceMore--;
-    
     console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
     i++;
 }
