@@ -13,12 +13,18 @@ Array.prototype.min = function() {
     return Math.min.apply(null, this);
 };
 
-// writes output file
-const write = function(filename){
-    fs.writeFile('./output.txt', filename + ' elevator logs\n' + log.join('\n'), function(err){
-            if(err) return console.log(err);
-            console.log('Result written to ./output.txt');
-        });
+// converts array of passengers from string to numbers
+const numberize = function(arrOfStrings, floors){
+    let arrOfNums = [];
+    for (var i = 0; i < arrOfStrings.length; i++){
+        arrOfNums[i] = Number(arrOfStrings[i])
+        if (arrOfNums[i] > floors){
+            console.error('Error: Invalid input; person ' + (i + 1).toString() + ' is attempting to go to floor ' + arrOfNums[i] + ', but only ' + floors.toString() + ' floors exist.');
+            process.exit();
+            // break;
+        }
+    };
+    return arrOfNums;
 }
 
 // parses input txt file
@@ -32,14 +38,7 @@ const elevatorProblem = function(filename){
     const numElevators = Number(inputArr[0]);
     const floors = Number(inputArr[1]);
     const capacity = Number(inputArr[2]);
-    const queue = inputArr[3].split(',');
-    for (var i = 0; i < queue.length; i++){
-        queue[i] = Number(queue[i])
-        if (queue[i] > floors){
-            console.error('Invalid input; person ' + (i + 1).toString() + ' is attempting to go to floor ' + queue[i].toString() + ', but only ' + floors.toString() + ' floors exist.');
-            process.exit();
-        }
-    };
+    const queue = numberize(inputArr[3].split(','), floors);
 
     // initializes elevator system
     let bottomFloorElevators = [], log = [], elevators = [], passengersInTransit = capacity * numElevators;
@@ -101,17 +100,21 @@ const elevatorProblem = function(filename){
             } else currentElevator.position--;
         }
 
-        console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
+        // console.log('current pool: ', currentPool, ' bottom floor elevators: ', bottomFloorElevators, ' elevators: ', elevators, ' log: ', log[i], ' in transit: ', passengersInTransit, ' i: ', i);
         i++;
-    }
+    }  
     let firstline = filename + ' elevator logs\n' + 'Total time to serve all passengers: ' + (i/60).toFixed(0) + ' minutes and ' + (i%60) + ' seconds.\n'
-    fs.writeFile('./output.txt', firstline + log.join('\n'), function(err){
-                if(err) return console.log(err);
-                console.log('Result written to ./output.txt');
-            });
+    return firstline + log.join('\n');
 }
 
-// elevatorProblem(filename);
+// writes output file
+const write = function(filename){
+    let log = elevatorProblem(filename);
+    fs.writeFile('./output.txt', log, function(err){
+            if(err) return console.log(err);
+            console.log('Result written to ./output.txt');
+        });
+}
 
 // allows node to take input from the terminal
 const readline = require('readline');
@@ -127,11 +130,18 @@ rl.on('line', (line) => {
       console.log('world!');
       break;
     default:
-      elevatorProblem(line.trim());
+      write(line.trim());
       break;
   }
-  rl.prompt();
+rl.prompt();
 }).on('close', () => {
   console.log('\nHave a great day!');
   process.exit(0);
 });
+
+// for testing
+module.exports = {
+    Array,
+    numberize,
+    elevatorProblem
+}
